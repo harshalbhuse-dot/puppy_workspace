@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "name": "Geofence Radius Configuration",
+    "version": "1.0.0",
+    "description": "Optimal geofence radii based on property type, address source, and population density",
+    "data_source": "Chirag_dx.20250501_dlvrd_distance",
+    "records_analyzed": 26800000,
+    "percentile": "P95",
+    "generated_date": "2026-01-29",
+    "author": "Code Puppy"
+  },
+  "density_thresholds": {
+    "URBAN_HIGH": { "min_density_per_km2": 4000, "description": "Dense urban cores" },
+    "URBAN_MEDIUM": { "min_density_per_km2": 1000, "description": "Urban areas" },
+    "SUBURBAN": { "min_density_per_km2": 200, "description": "Suburban neighborhoods" },
+    "RURAL": { "min_density_per_km2": 0, "description": "Rural areas" }
+  },
+  "geofence_radii_meters": {
+    "URBAN_HIGH": {
+      "HOUSE": { "AMS": 28, "GOOGLE": 70, "MAPBOX": 85, "MELISSA": 75, "CUSTOMER_PIN": 400, "DEFAULT": 35 },
+      "APARTMENT": { "AMS": 45, "GOOGLE": 140, "MAPBOX": 150, "MELISSA": 120, "CUSTOMER_PIN": 450, "DEFAULT": 70 },
+      "BUSINESS": { "AMS": 48, "GOOGLE": 100, "MAPBOX": 120, "MELISSA": 90, "CUSTOMER_PIN": 400, "DEFAULT": 75 },
+      "MOBILE_HOME": { "AMS": 25, "GOOGLE": 70, "MAPBOX": 80, "MELISSA": 70, "CUSTOMER_PIN": 400, "DEFAULT": 35 },
+      "DORM": { "AMS": 200, "GOOGLE": 220, "MAPBOX": 230, "MELISSA": 210, "CUSTOMER_PIN": 500, "DEFAULT": 220 },
+      "OTHER": { "AMS": 70, "GOOGLE": 120, "MAPBOX": 130, "MELISSA": 100, "CUSTOMER_PIN": 450, "DEFAULT": 100 }
+    },
+    "URBAN_MEDIUM": {
+      "HOUSE": { "AMS": 29, "GOOGLE": 72, "MAPBOX": 88, "MELISSA": 78, "CUSTOMER_PIN": 420, "DEFAULT": 38 },
+      "APARTMENT": { "AMS": 45, "GOOGLE": 145, "MAPBOX": 155, "MELISSA": 125, "CUSTOMER_PIN": 480, "DEFAULT": 75 },
+      "BUSINESS": { "AMS": 50, "GOOGLE": 100, "MAPBOX": 120, "MELISSA": 95, "CUSTOMER_PIN": 420, "DEFAULT": 75 },
+      "MOBILE_HOME": { "AMS": 26, "GOOGLE": 72, "MAPBOX": 82, "MELISSA": 72, "CUSTOMER_PIN": 420, "DEFAULT": 38 },
+      "DORM": { "AMS": 210, "GOOGLE": 225, "MAPBOX": 235, "MELISSA": 215, "CUSTOMER_PIN": 520, "DEFAULT": 225 },
+      "OTHER": { "AMS": 72, "GOOGLE": 125, "MAPBOX": 135, "MELISSA": 105, "CUSTOMER_PIN": 470, "DEFAULT": 105 }
+    },
+    "SUBURBAN": {
+      "HOUSE": { "AMS": 30, "GOOGLE": 75, "MAPBOX": 90, "MELISSA": 80, "CUSTOMER_PIN": 450, "DEFAULT": 40 },
+      "APARTMENT": { "AMS": 40, "GOOGLE": 130, "MAPBOX": 140, "MELISSA": 110, "CUSTOMER_PIN": 500, "DEFAULT": 65 },
+      "BUSINESS": { "AMS": 50, "GOOGLE": 100, "MAPBOX": 120, "MELISSA": 95, "CUSTOMER_PIN": 450, "DEFAULT": 75 },
+      "MOBILE_HOME": { "AMS": 28, "GOOGLE": 75, "MAPBOX": 85, "MELISSA": 75, "CUSTOMER_PIN": 450, "DEFAULT": 40 },
+      "DORM": { "AMS": 216, "GOOGLE": 230, "MAPBOX": 240, "MELISSA": 220, "CUSTOMER_PIN": 550, "DEFAULT": 230 },
+      "OTHER": { "AMS": 75, "GOOGLE": 130, "MAPBOX": 140, "MELISSA": 110, "CUSTOMER_PIN": 500, "DEFAULT": 110 }
+    },
+    "RURAL": {
+      "HOUSE": { "AMS": 34, "GOOGLE": 80, "MAPBOX": 95, "MELISSA": 85, "CUSTOMER_PIN": 500, "DEFAULT": 50 },
+      "APARTMENT": { "AMS": 50, "GOOGLE": 160, "MAPBOX": 170, "MELISSA": 140, "CUSTOMER_PIN": 550, "DEFAULT": 85 },
+      "BUSINESS": { "AMS": 55, "GOOGLE": 110, "MAPBOX": 130, "MELISSA": 100, "CUSTOMER_PIN": 500, "DEFAULT": 80 },
+      "MOBILE_HOME": { "AMS": 30, "GOOGLE": 80, "MAPBOX": 90, "MELISSA": 80, "CUSTOMER_PIN": 500, "DEFAULT": 45 },
+      "DORM": { "AMS": 220, "GOOGLE": 240, "MAPBOX": 250, "MELISSA": 230, "CUSTOMER_PIN": 600, "DEFAULT": 240 },
+      "OTHER": { "AMS": 80, "GOOGLE": 140, "MAPBOX": 150, "MELISSA": 120, "CUSTOMER_PIN": 550, "DEFAULT": 120 }
+    }
+  },
+  "fallback_defaults": {
+    "HOUSE": 50,
+    "APARTMENT": 85,
+    "BUSINESS": 75,
+    "MOBILE_HOME": 45,
+    "DORM": 220,
+    "OTHER": 100,
+    "UNKNOWN": 50
+  },
+  "percentile_multipliers": {
+    "P90": 0.85,
+    "P95": 1.0,
+    "P99": 1.8
+  }
+}

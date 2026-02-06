@@ -1,0 +1,31 @@
+# Geofence Radius Predictor - Docker Compose
+# Author: Code Puppy 🐶
+#
+# Usage:
+#   docker-compose up -d      # Start in background
+#   docker-compose logs -f    # View logs
+#   docker-compose down       # Stop
+
+version: '3.8'
+
+services:
+  geofence-predictor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: geofence-radius-predictor
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "app.name=geofence-radius-predictor"
+      - "app.description=Predicts optimal geofence radii for driver arrival and delivery"
+      - "app.version=1.0.0"
