@@ -210,69 +210,124 @@ DEFAULT_BY_PROPERTY: dict[str, int] = {
 # =============================================================================
 # Arrival Radius Lookup Table (P95 Percentile - where driver parks)
 # Based on ARRVL_DIST_METER analysis from Chirag_dx.20250501_dlvrd_distance
+# Now with proper density breakdowns for consistency with delivery lookup!
 # =============================================================================
 
-# Structure: (property_type, address_source) -> base_radius_meters
-# Note: Density adjustments applied via multipliers (similar pattern to delivery)
-ARRIVAL_LOOKUP: dict[tuple[str, str], int] = {
-    # HOUSE
-    ("HOUSE", "AMS"): 39,
-    ("HOUSE", "GOOGLE"): 87,
-    ("HOUSE", "MAPBOX"): 95,
-    ("HOUSE", "CUSTOMER_PIN"): 523,
-    ("HOUSE", "MANUAL_ADJ"): 59,
+# Structure: (density, property_type, address_source) -> radius_meters
+ARRIVAL_GEOFENCE_LOOKUP: dict[tuple[str, str, str], int] = {
+    # URBAN_HIGH (>4000 people/km²)
+    ("URBAN_HIGH", "HOUSE", "AMS"): 36,
+    ("URBAN_HIGH", "HOUSE", "GOOGLE"): 50,
+    ("URBAN_HIGH", "HOUSE", "MAPBOX"): 55,
+    ("URBAN_HIGH", "HOUSE", "CUSTOMER_PIN"): 138,
+    ("URBAN_HIGH", "APARTMENT", "AMS"): 69,
+    ("URBAN_HIGH", "APARTMENT", "GOOGLE"): 92,
+    ("URBAN_HIGH", "APARTMENT", "MAPBOX"): 86,
+    ("URBAN_HIGH", "APARTMENT", "CUSTOMER_PIN"): 107,
+    ("URBAN_HIGH", "BUSINESS", "AMS"): 65,
+    ("URBAN_HIGH", "BUSINESS", "GOOGLE"): 114,
+    ("URBAN_HIGH", "BUSINESS", "MAPBOX"): 100,
+    ("URBAN_HIGH", "BUSINESS", "CUSTOMER_PIN"): 200,
+    ("URBAN_HIGH", "MOBILE_HOME", "AMS"): 36,
+    ("URBAN_HIGH", "MOBILE_HOME", "GOOGLE"): 50,
+    ("URBAN_HIGH", "MOBILE_HOME", "MAPBOX"): 55,
+    ("URBAN_HIGH", "MOBILE_HOME", "CUSTOMER_PIN"): 138,
+    ("URBAN_HIGH", "DORM", "AMS"): 91,
+    ("URBAN_HIGH", "DORM", "GOOGLE"): 138,
+    ("URBAN_HIGH", "DORM", "MAPBOX"): 150,
+    ("URBAN_HIGH", "DORM", "CUSTOMER_PIN"): 200,
+    ("URBAN_HIGH", "OTHER", "AMS"): 64,
+    ("URBAN_HIGH", "OTHER", "GOOGLE"): 138,
+    ("URBAN_HIGH", "OTHER", "MAPBOX"): 120,
+    ("URBAN_HIGH", "OTHER", "CUSTOMER_PIN"): 200,
     
-    # APARTMENT
-    ("APARTMENT", "AMS"): 63,
-    ("APARTMENT", "GOOGLE"): 160,
-    ("APARTMENT", "MAPBOX"): 137,
-    ("APARTMENT", "CUSTOMER_PIN"): 230,
-    ("APARTMENT", "MANUAL_ADJ"): 99,
+    # URBAN_MEDIUM (1000-4000 people/km²)
+    ("URBAN_MEDIUM", "HOUSE", "AMS"): 35,
+    ("URBAN_MEDIUM", "HOUSE", "GOOGLE"): 51,
+    ("URBAN_MEDIUM", "HOUSE", "MAPBOX"): 52,
+    ("URBAN_MEDIUM", "HOUSE", "CUSTOMER_PIN"): 144,
+    ("URBAN_MEDIUM", "APARTMENT", "AMS"): 68,
+    ("URBAN_MEDIUM", "APARTMENT", "GOOGLE"): 152,
+    ("URBAN_MEDIUM", "APARTMENT", "MAPBOX"): 127,
+    ("URBAN_MEDIUM", "APARTMENT", "CUSTOMER_PIN"): 183,
+    ("URBAN_MEDIUM", "BUSINESS", "AMS"): 64,
+    ("URBAN_MEDIUM", "BUSINESS", "GOOGLE"): 143,
+    ("URBAN_MEDIUM", "BUSINESS", "MAPBOX"): 119,
+    ("URBAN_MEDIUM", "BUSINESS", "CUSTOMER_PIN"): 188,
+    ("URBAN_MEDIUM", "MOBILE_HOME", "AMS"): 35,
+    ("URBAN_MEDIUM", "MOBILE_HOME", "GOOGLE"): 51,
+    ("URBAN_MEDIUM", "MOBILE_HOME", "MAPBOX"): 52,
+    ("URBAN_MEDIUM", "MOBILE_HOME", "CUSTOMER_PIN"): 144,
+    ("URBAN_MEDIUM", "DORM", "AMS"): 91,
+    ("URBAN_MEDIUM", "DORM", "GOOGLE"): 180,
+    ("URBAN_MEDIUM", "DORM", "MAPBOX"): 185,
+    ("URBAN_MEDIUM", "DORM", "CUSTOMER_PIN"): 244,
+    ("URBAN_MEDIUM", "OTHER", "AMS"): 60,
+    ("URBAN_MEDIUM", "OTHER", "GOOGLE"): 180,
+    ("URBAN_MEDIUM", "OTHER", "MAPBOX"): 185,
+    ("URBAN_MEDIUM", "OTHER", "CUSTOMER_PIN"): 244,
     
-    # BUSINESS
-    ("BUSINESS", "AMS"): 67,
-    ("BUSINESS", "GOOGLE"): 169,
-    ("BUSINESS", "MAPBOX"): 193,
-    ("BUSINESS", "CUSTOMER_PIN"): 350,
-    ("BUSINESS", "MANUAL_ADJ"): 114,
+    # SUBURBAN (200-1000 people/km²)
+    ("SUBURBAN", "HOUSE", "AMS"): 38,
+    ("SUBURBAN", "HOUSE", "GOOGLE"): 59,
+    ("SUBURBAN", "HOUSE", "MAPBOX"): 58,
+    ("SUBURBAN", "HOUSE", "CUSTOMER_PIN"): 244,
+    ("SUBURBAN", "APARTMENT", "AMS"): 60,
+    ("SUBURBAN", "APARTMENT", "GOOGLE"): 176,
+    ("SUBURBAN", "APARTMENT", "MAPBOX"): 150,
+    ("SUBURBAN", "APARTMENT", "CUSTOMER_PIN"): 232,
+    ("SUBURBAN", "BUSINESS", "AMS"): 65,
+    ("SUBURBAN", "BUSINESS", "GOOGLE"): 168,
+    ("SUBURBAN", "BUSINESS", "MAPBOX"): 176,
+    ("SUBURBAN", "BUSINESS", "CUSTOMER_PIN"): 266,
+    ("SUBURBAN", "MOBILE_HOME", "AMS"): 38,
+    ("SUBURBAN", "MOBILE_HOME", "GOOGLE"): 59,
+    ("SUBURBAN", "MOBILE_HOME", "MAPBOX"): 58,
+    ("SUBURBAN", "MOBILE_HOME", "CUSTOMER_PIN"): 244,
+    ("SUBURBAN", "DORM", "AMS"): 91,
+    ("SUBURBAN", "DORM", "GOOGLE"): 253,
+    ("SUBURBAN", "DORM", "MAPBOX"): 201,
+    ("SUBURBAN", "DORM", "CUSTOMER_PIN"): 426,
+    ("SUBURBAN", "OTHER", "AMS"): 62,
+    ("SUBURBAN", "OTHER", "GOOGLE"): 253,
+    ("SUBURBAN", "OTHER", "MAPBOX"): 201,
+    ("SUBURBAN", "OTHER", "CUSTOMER_PIN"): 426,
     
-    # MOBILE_HOME (using HOUSE patterns with slight adjustment)
-    ("MOBILE_HOME", "AMS"): 35,
-    ("MOBILE_HOME", "GOOGLE"): 80,
-    ("MOBILE_HOME", "MAPBOX"): 90,
-    ("MOBILE_HOME", "CUSTOMER_PIN"): 500,
-    
-    # DORM / UNIVERSITY
-    ("DORM", "AMS"): 131,
-    ("DORM", "GOOGLE"): 330,
-    ("DORM", "MAPBOX"): 690,
-    ("DORM", "CUSTOMER_PIN"): 329,
-    
-    # OTHER
-    ("OTHER", "AMS"): 66,
-    ("OTHER", "GOOGLE"): 252,
-    ("OTHER", "MAPBOX"): 250,
-    ("OTHER", "CUSTOMER_PIN"): 680,
-    ("OTHER", "MANUAL_ADJ"): 169,
+    # RURAL (<200 people/km²)
+    ("RURAL", "HOUSE", "AMS"): 42,
+    ("RURAL", "HOUSE", "GOOGLE"): 110,
+    ("RURAL", "HOUSE", "MAPBOX"): 119,
+    ("RURAL", "HOUSE", "CUSTOMER_PIN"): 763,
+    ("RURAL", "APARTMENT", "AMS"): 57,
+    ("RURAL", "APARTMENT", "GOOGLE"): 164,
+    ("RURAL", "APARTMENT", "MAPBOX"): 144,
+    ("RURAL", "APARTMENT", "CUSTOMER_PIN"): 345,
+    ("RURAL", "BUSINESS", "AMS"): 69,
+    ("RURAL", "BUSINESS", "GOOGLE"): 196,
+    ("RURAL", "BUSINESS", "MAPBOX"): 250,
+    ("RURAL", "BUSINESS", "CUSTOMER_PIN"): 529,
+    ("RURAL", "MOBILE_HOME", "AMS"): 42,
+    ("RURAL", "MOBILE_HOME", "GOOGLE"): 110,
+    ("RURAL", "MOBILE_HOME", "MAPBOX"): 119,
+    ("RURAL", "MOBILE_HOME", "CUSTOMER_PIN"): 763,
+    ("RURAL", "DORM", "AMS"): 91,
+    ("RURAL", "DORM", "GOOGLE"): 294,
+    ("RURAL", "DORM", "MAPBOX"): 302,
+    ("RURAL", "DORM", "CUSTOMER_PIN"): 1014,
+    ("RURAL", "OTHER", "AMS"): 73,
+    ("RURAL", "OTHER", "GOOGLE"): 294,
+    ("RURAL", "OTHER", "MAPBOX"): 302,
+    ("RURAL", "OTHER", "CUSTOMER_PIN"): 1014,
 }
 
 # Default fallback arrival radii by property type
 DEFAULT_ARRIVAL_BY_PROPERTY: dict[str, int] = {
-    "HOUSE": 60,
-    "APARTMENT": 100,
-    "BUSINESS": 100,
-    "MOBILE_HOME": 55,
-    "DORM": 250,
-    "OTHER": 120,
-}
-
-# Density adjustment multipliers for arrival radius
-# Urban areas have tighter arrival (easier parking), rural has wider
-ARRIVAL_DENSITY_MULTIPLIERS: dict[str, float] = {
-    "URBAN_HIGH": 0.92,    # Tighter in dense urban (structured parking)
-    "URBAN_MEDIUM": 0.96,
-    "SUBURBAN": 1.0,       # Baseline
-    "RURAL": 1.08,         # Wider in rural areas
+    "HOUSE": 50,
+    "APARTMENT": 80,
+    "BUSINESS": 80,
+    "MOBILE_HOME": 50,
+    "DORM": 150,
+    "OTHER": 80,
 }
 
 # Ultimate fallback
@@ -454,30 +509,27 @@ def get_arrival_radius(
         
     Example:
         >>> get_arrival_radius("HOUSE", "AMS", "SUBURBAN")
-        39
+        38
         >>> get_arrival_radius("APARTMENT", "GOOGLE", "RURAL")
-        172
+        164
     """
     # Normalize inputs
     valid_properties = ["HOUSE", "APARTMENT", "BUSINESS", "MOBILE_HOME", "DORM", "OTHER"]
-    valid_sources = ["AMS", "GOOGLE", "MAPBOX", "CUSTOMER_PIN", "MANUAL_ADJ"]
+    valid_sources = ["AMS", "GOOGLE", "MAPBOX", "CUSTOMER_PIN"]
     valid_densities = ["URBAN_HIGH", "URBAN_MEDIUM", "SUBURBAN", "RURAL"]
     
     prop = normalize_input(property_type, valid_properties, "HOUSE")
     source = normalize_input(address_source, valid_sources, "AMS")
     density = normalize_input(density_category, valid_densities, "SUBURBAN")
     
-    # Look up base arrival radius (P95)
-    key = (prop, source)
-    base_radius = ARRIVAL_LOOKUP.get(key)
+    # Look up base arrival radius (P95) - same structure as delivery lookup
+    key = (density, prop, source)
+    base_radius = ARRIVAL_GEOFENCE_LOOKUP.get(key)
     
     # Fallback hierarchy
     if base_radius is None:
-        base_radius = DEFAULT_ARRIVAL_BY_PROPERTY.get(prop, 60)
-    
-    # Apply density multiplier
-    density_mult = ARRIVAL_DENSITY_MULTIPLIERS.get(density, 1.0)
-    base_radius = base_radius * density_mult
+        # Try without source specificity
+        base_radius = DEFAULT_ARRIVAL_BY_PROPERTY.get(prop, 50)
     
     # Apply access multiplier if access is required (same as delivery)
     if access_required:
@@ -486,11 +538,23 @@ def get_arrival_radius(
     
     # Adjust for different percentiles
     if percentile == "P90":
-        return int(base_radius * 0.85)  # P90 is ~15% smaller than P95
+        arrival_radius = int(base_radius * 0.85)  # P90 is ~15% smaller than P95
     elif percentile == "P99":
-        return int(base_radius * 1.8)   # P99 is ~80% larger than P95
+        arrival_radius = int(base_radius * 1.8)   # P99 is ~80% larger than P95
     else:  # P95 (default)
-        return int(base_radius)
+        arrival_radius = int(base_radius)
+    
+    # Ensure arrival >= delivery (driver parks at least as far as they deliver)
+    # This handles edge cases like DORM/UNIVERSITY where delivery might be larger
+    delivery_radius = get_geofence_radius(
+        property_type=prop,
+        address_source=source,
+        density_category=density,
+        percentile=percentile,
+        access_required=access_required,
+    )
+    
+    return max(arrival_radius, delivery_radius)
 
 
 def get_geofence_radius_with_zip(
