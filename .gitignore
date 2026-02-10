@@ -69,3 +69,7 @@ htmlcov/
 # Temp files
 *.tmp
 *.temp
+
+# GitHub CLI (local install)
+gh_cli/
+gh.zip
