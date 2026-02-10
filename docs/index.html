@@ -1,10 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎯 Geofence Radius Predictor</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Check for dark mode preference immediately to prevent flash
+        if (localStorage.getItem('darkMode') === 'true' || 
+            (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        // Configure Tailwind for dark mode
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <style>
         /* Walmart Colors */
         :root {
@@ -32,17 +44,63 @@
         .animate-fade-in {
             animation: fade-in 0.3s ease-out;
         }
+        
+        /* Dark mode transitions */
+        html {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Toggle switch styles */
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: var(--walmart-spark);
+        }
+        
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-switch.active::before {
+            transform: translateX(30px);
+        }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
     <!-- Header -->
     <header class="bg-walmart-blue text-white py-6 shadow-lg">
         <div class="max-w-4xl mx-auto px-4">
-            <div class="flex items-center gap-3">
-                <span class="text-4xl">🎯</span>
-                <div>
-                    <h1 class="text-2xl font-bold">Geofence Radius Predictor</h1>
-                    <p class="text-blue-200 text-sm">Based on 26.8M delivery records</p>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-4xl">🎯</span>
+                    <div>
+                        <h1 class="text-2xl font-bold">Geofence Radius Predictor</h1>
+                        <p class="text-blue-200 text-sm">Based on 26.8M delivery records</p>
+                    </div>
+                </div>
+                <!-- Dark Mode Toggle -->
+                <div class="flex items-center gap-2">
+                    <span class="text-xl" id="lightIcon">☀️</span>
+                    <button id="darkModeToggle" class="toggle-switch" aria-label="Toggle dark mode" role="switch" aria-checked="false">
+                    </button>
+                    <span class="text-xl" id="darkIcon">🌙</span>
                 </div>
             </div>
         </div>
@@ -50,19 +108,19 @@
 
     <main class="max-w-4xl mx-auto px-4 py-8">
         <!-- Input Card -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <h2 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6 transition-colors duration-300">
+            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2">
                 <span>📝</span> Input Parameters
             </h2>
             
             <form id="predictForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Property Type -->
                 <div>
-                    <label for="property_type" class="block text-sm font-medium text-gray-600 mb-1">
+                    <label for="property_type" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
                         Property Type
                     </label>
                     <select name="property_type" id="property_type" 
-                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-gray-700 bg-white hover:border-gray-300 transition-colors cursor-pointer">
+                            class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-colors cursor-pointer">
                         <option value="HOUSE" selected>🏠 House</option>
                         <option value="APARTMENT">🏢 Apartment</option>
                         <option value="BUSINESS">🏪 Business</option>
@@ -74,11 +132,11 @@
                 
                 <!-- Address Source -->
                 <div>
-                    <label for="address_source" class="block text-sm font-medium text-gray-600 mb-1">
+                    <label for="address_source" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
                         Address Source
                     </label>
                     <select name="address_source" id="address_source" 
-                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-gray-700 bg-white hover:border-gray-300 transition-colors cursor-pointer">
+                            class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-colors cursor-pointer">
                         <option value="AMS" selected>🎯 AMS (Most Accurate)</option>
                         <option value="GOOGLE">🗺️ Google</option>
                         <option value="MAPBOX">📍 Mapbox</option>
@@ -88,11 +146,11 @@
                 
                 <!-- Density Category -->
                 <div>
-                    <label for="density_category" class="block text-sm font-medium text-gray-600 mb-1">
+                    <label for="density_category" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
                         Population Density
                     </label>
                     <select name="density_category" id="density_category" 
-                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-gray-700 bg-white hover:border-gray-300 transition-colors cursor-pointer">
+                            class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-colors cursor-pointer">
                         <option value="URBAN_HIGH">🏙️ Urban High (&gt;4000/km²)</option>
                         <option value="URBAN_MEDIUM">🌆 Urban Medium (1000-4000/km²)</option>
                         <option value="SUBURBAN" selected>🏘️ Suburban (200-1000/km²)</option>
@@ -102,11 +160,11 @@
                 
                 <!-- Percentile -->
                 <div>
-                    <label for="percentile" class="block text-sm font-medium text-gray-600 mb-1">
+                    <label for="percentile" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
                         Percentile
                     </label>
                     <select name="percentile" id="percentile" 
-                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-gray-700 bg-white hover:border-gray-300 transition-colors cursor-pointer">
+                            class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-colors cursor-pointer">
                         <option value="P90">P90 (Tight - 90% coverage)</option>
                         <option value="P95" selected>P95 (Balanced - 95% coverage)</option>
                         <option value="P99">P99 (Safe - 99% coverage)</option>
@@ -115,11 +173,11 @@
                 
                 <!-- Access Required -->
                 <div class="md:col-span-2">
-                    <label for="access_required" class="block text-sm font-medium text-gray-600 mb-1">
+                    <label for="access_required" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
                         Access Required?
                     </label>
                     <select name="access_required" id="access_required" 
-                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-gray-700 bg-white hover:border-gray-300 transition-colors cursor-pointer">
+                            class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-colors cursor-pointer">
                         <option value="NO" selected>🚪 No Access Required</option>
                         <option value="YES">🔐 Access Required (Gate/Buzzer/Code)</option>
                     </select>
@@ -128,8 +186,8 @@
         </div>
 
         <!-- Result Card -->
-        <div class="bg-white rounded-xl shadow-lg p-8">
-            <h2 class="text-lg font-semibold text-gray-700 mb-6 flex items-center gap-2">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 transition-colors duration-300">
+            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-6 flex items-center gap-2">
                 <span>📊</span> Recommended Geofence Radius
             </h2>
             
@@ -139,11 +197,11 @@
         </div>
 
         <!-- Info Card -->
-        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-6">
-            <h3 class="font-semibold text-walmart-blue mb-3 flex items-center gap-2">
+        <div class="mt-6 bg-blue-50 dark:bg-gray-800 border border-blue-200 dark:border-gray-700 rounded-xl p-6 transition-colors duration-300">
+            <h3 class="font-semibold text-walmart-blue dark:text-blue-400 mb-3 flex items-center gap-2">
                 <span>💡</span> How It Works
             </h3>
-            <ul class="text-sm text-gray-600 space-y-2">
+            <ul class="text-sm text-gray-600 dark:text-gray-300 space-y-2">
                 <li><strong>Property Type:</strong> Different properties have different geocoding accuracy patterns.</li>
                 <li><strong>Address Source:</strong> AMS is most accurate, Customer Pin is least accurate.</li>
                 <li><strong>Density:</strong> Rural areas typically need slightly larger geofences.</li>
@@ -154,7 +212,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="text-center py-6 text-gray-400 text-sm">
+    <footer class="text-center py-6 text-gray-400 dark:text-gray-500 text-sm">
         <p>Built with ❤️ by Code Puppy 🐶 | Data: 26.8M delivery records</p>
     </footer>
 
