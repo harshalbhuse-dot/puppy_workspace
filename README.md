@@ -87,7 +87,7 @@ curl "http://localhost:8501/predict?property_type=HOUSE&address_source=AMS&densi
 
 ## 📈 Data Source
 
-Based on analysis of **26.8M delivery records** from `Chirag_dx.20250501_dlvrd_distance`:
+Based on analysis of **604M delivery records** from `wmt-driver-insights.Chirag_dx.geofence_delivered_distance_1yr`:
 - `ARRVL_DIST_METER` → Arrival radius predictions
 - `DLVRD_DISTANCE` → Delivery radius predictions
 

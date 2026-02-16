@@ -5,7 +5,7 @@
  * A simple, production-ready lookup module for predicting optimal geofence
  * radii based on property type, address source, and population density.
  * 
- * Based on analysis of 26.8M delivery records from Chirag_dx.20250501_dlvrd_distance
+ * Based on analysis of 604M delivery records from wmt-driver-insights.Chirag_dx.geofence_delivered_distance_1yr
  * 
  * Ported from Python by Code Puppy 🐶
  */

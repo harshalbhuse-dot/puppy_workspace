@@ -3,10 +3,10 @@
     "name": "Geofence Radius Configuration",
     "version": "1.0.0",
     "description": "Optimal geofence radii based on property type, address source, and population density",
-    "data_source": "Chirag_dx.20250501_dlvrd_distance",
-    "records_analyzed": 26800000,
+    "data_source": "wmt-driver-insights.Chirag_dx.geofence_delivered_distance_1yr",
+    "records_analyzed": 604483892,
     "percentile": "P95",
-    "generated_date": "2026-01-29",
+    "generated_date": "2026-02-10",
     "author": "Code Puppy"
   },
   "density_thresholds": {

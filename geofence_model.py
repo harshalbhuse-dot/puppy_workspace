@@ -5,7 +5,7 @@ Geofence Radius Prediction Model
 A simple, production-ready lookup module for predicting optimal geofence
 radii based on property type, address source, and population density.
 
-Based on analysis of 26.8M delivery records from Chirag_dx.20250501_dlvrd_distance
+Based on analysis of 604M delivery records from wmt-driver-insights.Chirag_dx.geofence_delivered_distance_1yr
 
 Usage:
     from geofence_model import get_geofence_radius, get_density_category
@@ -209,7 +209,7 @@ DEFAULT_BY_PROPERTY: dict[str, int] = {
 
 # =============================================================================
 # Arrival Radius Lookup Table (P95 Percentile - where driver parks)
-# Based on ARRVL_DIST_METER analysis from Chirag_dx.20250501_dlvrd_distance
+# Based on ARRVL_DIST_METER analysis from wmt-driver-insights.Chirag_dx.geofence_delivered_distance_1yr
 # Now with proper density breakdowns for consistency with delivery lookup!
 # =============================================================================
 
