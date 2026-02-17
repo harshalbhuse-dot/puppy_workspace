@@ -2,198 +2,145 @@
  * Geofence Radius Prediction Model (JavaScript Port)
  * ===================================================
  * 
- * A simple, production-ready lookup module for predicting optimal geofence
- * radii based on property type, address source, and population density.
- * 
- * Based on analysis of 604M delivery records from wmt-driver-insights.Chirag_dx.geofence_delivered_distance_1yr
+ * Based on analysis of 604M delivery records
+ * Source: wmt-driver-insights.Chirag_dx.geofence_delivered_distance_1yr
  * Date Range: 2025-02-10 to 2026-02-09
- * Version: 2.0.0
+ * Version: 2.1.0
  * 
- * Ported from Python by Code Puppy 🐶
+ * Built by Code Puppy 🐶
  */
 
 // =============================================================================
-// Geofence Lookup Table (P95 Percentile - captures 95% of deliveries)
+// ARRIVAL Radius Lookup (P90, P95, P99) - Where driver parks
 // =============================================================================
 
-const GEOFENCE_LOOKUP = {
-    // URBAN_HIGH (>4000 people/km²) - multiplier 0.85
-    'URBAN_HIGH|HOUSE|AMS': 33,
-    'URBAN_HIGH|HOUSE|GOOGLE': 69,
-    'URBAN_HIGH|HOUSE|MAPBOX': 76,
-    'URBAN_HIGH|HOUSE|MANUAL_ADJ': 49,
-    'URBAN_HIGH|HOUSE|CUSTOMER_PIN': 232,
-    'URBAN_HIGH|HOUSE|OTHER': 377,
-    'URBAN_HIGH|HOUSE|DEFAULT': 893,
-    'URBAN_HIGH|APARTMENT|AMS': 52,
-    'URBAN_HIGH|APARTMENT|GOOGLE': 125,
-    'URBAN_HIGH|APARTMENT|MAPBOX': 120,
-    'URBAN_HIGH|APARTMENT|MANUAL_ADJ': 76,
-    'URBAN_HIGH|APARTMENT|CUSTOMER_PIN': 149,
-    'URBAN_HIGH|APARTMENT|OTHER': 276,
-    'URBAN_HIGH|APARTMENT|DEFAULT': 912,
-    'URBAN_HIGH|BUSINESS|AMS': 56,
-    'URBAN_HIGH|BUSINESS|GOOGLE': 137,
-    'URBAN_HIGH|BUSINESS|MAPBOX': 166,
-    'URBAN_HIGH|BUSINESS|MANUAL_ADJ': 152,
-    'URBAN_HIGH|BUSINESS|CUSTOMER_PIN': 175,
-    'URBAN_HIGH|BUSINESS|OTHER': 215,
-    'URBAN_HIGH|BUSINESS|DEFAULT': 2216,
-    'URBAN_HIGH|OTHER|AMS': 55,
-    'URBAN_HIGH|OTHER|GOOGLE': 215,
-    'URBAN_HIGH|OTHER|MAPBOX': 213,
-    'URBAN_HIGH|OTHER|MANUAL_ADJ': 143,
-    'URBAN_HIGH|OTHER|CUSTOMER_PIN': 260,
-    'URBAN_HIGH|OTHER|OTHER': 362,
-    'URBAN_HIGH|OTHER|DEFAULT': 3329,
-    'URBAN_HIGH|UNIVERSITY|AMS': 129,
-    'URBAN_HIGH|UNIVERSITY|GOOGLE': 348,
-    'URBAN_HIGH|UNIVERSITY|MAPBOX': 200,
-    'URBAN_HIGH|UNIVERSITY|MANUAL_ADJ': 410,
-    'URBAN_HIGH|UNIVERSITY|CUSTOMER_PIN': 300,
-    'URBAN_HIGH|UNIVERSITY|DEFAULT': 400,
-    'URBAN_HIGH|UNKNOWN|AMS': 50,
-    'URBAN_HIGH|UNKNOWN|GOOGLE': 100,
-    'URBAN_HIGH|UNKNOWN|MAPBOX': 138,
-    'URBAN_HIGH|UNKNOWN|MANUAL_ADJ': 68,
-    'URBAN_HIGH|UNKNOWN|CUSTOMER_PIN': 930,
-    'URBAN_HIGH|UNKNOWN|DEFAULT': 5019,
+const ARRIVAL_LOOKUP = {
+    // APARTMENT
+    'APARTMENT|AMS': { P90: 45, P95: 61, P99: 125 },
+    'APARTMENT|CUSTOMER_PIN': { P90: 97, P95: 167, P99: 1059 },
+    'APARTMENT|DEFAULT': { P90: 308, P95: 943, P99: 5336 },
+    'APARTMENT|GOOGLE': { P90: 98, P95: 147, P99: 287 },
+    'APARTMENT|MANUAL_ADJ': { P90: 55, P95: 86, P99: 196 },
+    'APARTMENT|MAPBOX': { P90: 97, P95: 142, P99: 278 },
+    'APARTMENT|OTHER': { P90: 169, P95: 298, P99: 2721 },
     
-    // URBAN_MEDIUM (1000-4000 people/km²) - multiplier 0.92
-    'URBAN_MEDIUM|HOUSE|AMS': 36,
-    'URBAN_MEDIUM|HOUSE|GOOGLE': 75,
-    'URBAN_MEDIUM|HOUSE|MAPBOX': 82,
-    'URBAN_MEDIUM|HOUSE|MANUAL_ADJ': 53,
-    'URBAN_MEDIUM|HOUSE|CUSTOMER_PIN': 251,
-    'URBAN_MEDIUM|HOUSE|OTHER': 408,
-    'URBAN_MEDIUM|HOUSE|DEFAULT': 967,
-    'URBAN_MEDIUM|APARTMENT|AMS': 57,
-    'URBAN_MEDIUM|APARTMENT|GOOGLE': 135,
-    'URBAN_MEDIUM|APARTMENT|MAPBOX': 129,
-    'URBAN_MEDIUM|APARTMENT|MANUAL_ADJ': 82,
-    'URBAN_MEDIUM|APARTMENT|CUSTOMER_PIN': 162,
-    'URBAN_MEDIUM|APARTMENT|OTHER': 299,
-    'URBAN_MEDIUM|APARTMENT|DEFAULT': 987,
-    'URBAN_MEDIUM|BUSINESS|AMS': 61,
-    'URBAN_MEDIUM|BUSINESS|GOOGLE': 149,
-    'URBAN_MEDIUM|BUSINESS|MAPBOX': 179,
-    'URBAN_MEDIUM|BUSINESS|MANUAL_ADJ': 164,
-    'URBAN_MEDIUM|BUSINESS|CUSTOMER_PIN': 190,
-    'URBAN_MEDIUM|BUSINESS|OTHER': 233,
-    'URBAN_MEDIUM|BUSINESS|DEFAULT': 2398,
-    'URBAN_MEDIUM|OTHER|AMS': 60,
-    'URBAN_MEDIUM|OTHER|GOOGLE': 232,
-    'URBAN_MEDIUM|OTHER|MAPBOX': 230,
-    'URBAN_MEDIUM|OTHER|MANUAL_ADJ': 155,
-    'URBAN_MEDIUM|OTHER|CUSTOMER_PIN': 282,
-    'URBAN_MEDIUM|OTHER|OTHER': 392,
-    'URBAN_MEDIUM|OTHER|DEFAULT': 3603,
-    'URBAN_MEDIUM|UNIVERSITY|AMS': 140,
-    'URBAN_MEDIUM|UNIVERSITY|GOOGLE': 377,
-    'URBAN_MEDIUM|UNIVERSITY|MAPBOX': 217,
-    'URBAN_MEDIUM|UNIVERSITY|MANUAL_ADJ': 444,
-    'URBAN_MEDIUM|UNIVERSITY|CUSTOMER_PIN': 325,
-    'URBAN_MEDIUM|UNIVERSITY|DEFAULT': 433,
-    'URBAN_MEDIUM|UNKNOWN|AMS': 54,
-    'URBAN_MEDIUM|UNKNOWN|GOOGLE': 108,
-    'URBAN_MEDIUM|UNKNOWN|MAPBOX': 149,
-    'URBAN_MEDIUM|UNKNOWN|MANUAL_ADJ': 73,
-    'URBAN_MEDIUM|UNKNOWN|CUSTOMER_PIN': 1006,
-    'URBAN_MEDIUM|UNKNOWN|DEFAULT': 5433,
+    // BUSINESS
+    'BUSINESS|AMS': { P90: 47, P95: 65, P99: 138 },
+    'BUSINESS|CUSTOMER_PIN': { P90: 112, P95: 194, P99: 1435 },
+    'BUSINESS|DEFAULT': { P90: 780, P95: 2346, P99: 6252 },
+    'BUSINESS|GOOGLE': { P90: 102, P95: 155, P99: 342 },
+    'BUSINESS|MANUAL_ADJ': { P90: 110, P95: 165, P99: 393 },
+    'BUSINESS|MAPBOX': { P90: 129, P95: 190, P99: 414 },
+    'BUSINESS|OTHER': { P90: 167, P95: 248, P99: 1591 },
     
-    // SUBURBAN (200-1000 people/km²) - baseline multiplier 1.0
-    'SUBURBAN|HOUSE|AMS': 39,
-    'SUBURBAN|HOUSE|GOOGLE': 81,
-    'SUBURBAN|HOUSE|MAPBOX': 89,
-    'SUBURBAN|HOUSE|MANUAL_ADJ': 58,
-    'SUBURBAN|HOUSE|CUSTOMER_PIN': 273,
-    'SUBURBAN|HOUSE|OTHER': 443,
-    'SUBURBAN|HOUSE|DEFAULT': 1051,
-    'SUBURBAN|APARTMENT|AMS': 62,
-    'SUBURBAN|APARTMENT|GOOGLE': 147,
-    'SUBURBAN|APARTMENT|MAPBOX': 141,
-    'SUBURBAN|APARTMENT|MANUAL_ADJ': 89,
-    'SUBURBAN|APARTMENT|CUSTOMER_PIN': 176,
-    'SUBURBAN|APARTMENT|OTHER': 325,
-    'SUBURBAN|APARTMENT|DEFAULT': 1073,
-    'SUBURBAN|BUSINESS|AMS': 66,
-    'SUBURBAN|BUSINESS|GOOGLE': 161,
-    'SUBURBAN|BUSINESS|MAPBOX': 195,
-    'SUBURBAN|BUSINESS|MANUAL_ADJ': 179,
-    'SUBURBAN|BUSINESS|CUSTOMER_PIN': 206,
-    'SUBURBAN|BUSINESS|OTHER': 254,
-    'SUBURBAN|BUSINESS|DEFAULT': 2607,
-    'SUBURBAN|OTHER|AMS': 65,
-    'SUBURBAN|OTHER|GOOGLE': 253,
-    'SUBURBAN|OTHER|MAPBOX': 251,
-    'SUBURBAN|OTHER|MANUAL_ADJ': 168,
-    'SUBURBAN|OTHER|CUSTOMER_PIN': 307,
-    'SUBURBAN|OTHER|OTHER': 426,
-    'SUBURBAN|OTHER|DEFAULT': 3917,
-    'SUBURBAN|UNIVERSITY|AMS': 152,
-    'SUBURBAN|UNIVERSITY|GOOGLE': 409,
-    'SUBURBAN|UNIVERSITY|MAPBOX': 236,
-    'SUBURBAN|UNIVERSITY|MANUAL_ADJ': 482,
-    'SUBURBAN|UNIVERSITY|CUSTOMER_PIN': 350,
-    'SUBURBAN|UNIVERSITY|DEFAULT': 470,
-    'SUBURBAN|UNKNOWN|AMS': 58,
-    'SUBURBAN|UNKNOWN|GOOGLE': 117,
-    'SUBURBAN|UNKNOWN|MAPBOX': 162,
-    'SUBURBAN|UNKNOWN|MANUAL_ADJ': 80,
-    'SUBURBAN|UNKNOWN|CUSTOMER_PIN': 1094,
-    'SUBURBAN|UNKNOWN|DEFAULT': 5905,
+    // HOUSE
+    'HOUSE|AMS': { P90: 32, P95: 39, P99: 55 },
+    'HOUSE|CUSTOMER_PIN': { P90: 107, P95: 239, P99: 1794 },
+    'HOUSE|DEFAULT': { P90: 348, P95: 958, P99: 5735 },
+    'HOUSE|GOOGLE': { P90: 48, P95: 79, P99: 192 },
+    'HOUSE|MANUAL_ADJ': { P90: 40, P95: 55, P99: 141 },
+    'HOUSE|MAPBOX': { P90: 52, P95: 87, P99: 214 },
+    'HOUSE|OTHER': { P90: 186, P95: 391, P99: 3373 },
     
-    // RURAL (<200 people/km²) - multiplier 1.15
-    'RURAL|HOUSE|AMS': 45,
-    'RURAL|HOUSE|GOOGLE': 93,
-    'RURAL|HOUSE|MAPBOX': 102,
-    'RURAL|HOUSE|MANUAL_ADJ': 66,
-    'RURAL|HOUSE|CUSTOMER_PIN': 314,
-    'RURAL|HOUSE|OTHER': 510,
-    'RURAL|HOUSE|DEFAULT': 1208,
-    'RURAL|APARTMENT|AMS': 71,
-    'RURAL|APARTMENT|GOOGLE': 169,
-    'RURAL|APARTMENT|MAPBOX': 162,
-    'RURAL|APARTMENT|MANUAL_ADJ': 102,
-    'RURAL|APARTMENT|CUSTOMER_PIN': 202,
-    'RURAL|APARTMENT|OTHER': 374,
-    'RURAL|APARTMENT|DEFAULT': 1234,
-    'RURAL|BUSINESS|AMS': 76,
-    'RURAL|BUSINESS|GOOGLE': 186,
-    'RURAL|BUSINESS|MAPBOX': 224,
-    'RURAL|BUSINESS|MANUAL_ADJ': 205,
-    'RURAL|BUSINESS|CUSTOMER_PIN': 237,
-    'RURAL|BUSINESS|OTHER': 292,
-    'RURAL|BUSINESS|DEFAULT': 2998,
-    'RURAL|OTHER|AMS': 75,
-    'RURAL|OTHER|GOOGLE': 291,
-    'RURAL|OTHER|MAPBOX': 288,
-    'RURAL|OTHER|MANUAL_ADJ': 193,
-    'RURAL|OTHER|CUSTOMER_PIN': 352,
-    'RURAL|OTHER|OTHER': 490,
-    'RURAL|OTHER|DEFAULT': 4504,
-    'RURAL|UNIVERSITY|AMS': 175,
-    'RURAL|UNIVERSITY|GOOGLE': 471,
-    'RURAL|UNIVERSITY|MAPBOX': 271,
-    'RURAL|UNIVERSITY|MANUAL_ADJ': 555,
-    'RURAL|UNIVERSITY|CUSTOMER_PIN': 403,
-    'RURAL|UNIVERSITY|DEFAULT': 541,
-    'RURAL|UNKNOWN|AMS': 67,
-    'RURAL|UNKNOWN|GOOGLE': 135,
-    'RURAL|UNKNOWN|MAPBOX': 187,
-    'RURAL|UNKNOWN|MANUAL_ADJ': 92,
-    'RURAL|UNKNOWN|CUSTOMER_PIN': 1258,
-    'RURAL|UNKNOWN|DEFAULT': 6791,
+    // OTHER
+    'OTHER|AMS': { P90: 43, P95: 63, P99: 154 },
+    'OTHER|CUSTOMER_PIN': { P90: 133, P95: 266, P99: 1722 },
+    'OTHER|DEFAULT': { P90: 1426, P95: 3874, P99: 7684 },
+    'OTHER|GOOGLE': { P90: 157, P95: 240, P99: 432 },
+    'OTHER|MANUAL_ADJ': { P90: 91, P95: 165, P99: 378 },
+    'OTHER|MAPBOX': { P90: 171, P95: 251, P99: 500 },
+    'OTHER|OTHER': { P90: 227, P95: 394, P99: 2813 },
+    
+    // UNIVERSITY
+    'UNIVERSITY|AMS': { P90: 92, P95: 146, P99: 270 },
+    'UNIVERSITY|GOOGLE': { P90: 311, P95: 402, P99: 490 },
+    
+    // UNKNOWN
+    'UNKNOWN|AMS': { P90: 38, P95: 57, P99: 145 },
+    'UNKNOWN|CUSTOMER_PIN': { P90: 218, P95: 762, P99: 5143 },
+    'UNKNOWN|DEFAULT': { P90: 3598, P95: 5808, P99: 8737 },
+    'UNKNOWN|MAPBOX': { P90: 90, P95: 144, P99: 343 },
+    'UNKNOWN|OTHER': { P90: 56, P95: 97, P99: 387 },
 };
 
-// Default fallback radii by property type (P95 from GOOGLE source)
-const DEFAULT_BY_PROPERTY = {
-    'HOUSE': 89,
+// =============================================================================
+// DELIVERY Radius Lookup (P90, P95, P99) - Where driver delivers/takes photo
+// =============================================================================
+
+const DELIVERY_LOOKUP = {
+    // APARTMENT
+    'APARTMENT|AMS': { P90: 27, P95: 33, P99: 62 },
+    'APARTMENT|CUSTOMER_PIN': { P90: 99, P95: 171, P99: 951 },
+    'APARTMENT|DEFAULT': { P90: 338, P95: 1014, P99: 5407 },
+    'APARTMENT|GOOGLE': { P90: 103, P95: 154, P99: 310 },
+    'APARTMENT|MANUAL_ADJ': { P90: 47, P95: 85, P99: 210 },
+    'APARTMENT|MAPBOX': { P90: 108, P95: 160, P99: 327 },
+    'APARTMENT|OTHER': { P90: 187, P95: 349, P99: 2810 },
+    
+    // BUSINESS
+    'BUSINESS|AMS': { P90: 32, P95: 42, P99: 100 },
+    'BUSINESS|CUSTOMER_PIN': { P90: 105, P95: 191, P99: 1728 },
+    'BUSINESS|DEFAULT': { P90: 883, P95: 2494, P99: 6499 },
+    'BUSINESS|GOOGLE': { P90: 101, P95: 159, P99: 423 },
+    'BUSINESS|MANUAL_ADJ': { P90: 101, P95: 180, P99: 492 },
+    'BUSINESS|MAPBOX': { P90: 131, P95: 204, P99: 553 },
+    'BUSINESS|OTHER': { P90: 178, P95: 305, P99: 1831 },
+    
+    // HOUSE
+    'HOUSE|AMS': { P90: 25, P95: 29, P99: 50 },
+    'HOUSE|CUSTOMER_PIN': { P90: 121, P95: 276, P99: 2418 },
+    'HOUSE|DEFAULT': { P90: 382, P95: 1038, P99: 5752 },
+    'HOUSE|GOOGLE': { P90: 38, P95: 70, P99: 221 },
+    'HOUSE|MANUAL_ADJ': { P90: 30, P95: 46, P99: 164 },
+    'HOUSE|MAPBOX': { P90: 40, P95: 76, P99: 241 },
+    'HOUSE|OTHER': { P90: 218, P95: 484, P99: 3551 },
+    
+    // OTHER
+    'OTHER|AMS': { P90: 29, P95: 40, P99: 121 },
+    'OTHER|CUSTOMER_PIN': { P90: 137, P95: 283, P99: 2190 },
+    'OTHER|DEFAULT': { P90: 1517, P95: 3913, P99: 7725 },
+    'OTHER|GOOGLE': { P90: 171, P95: 274, P99: 626 },
+    'OTHER|MANUAL_ADJ': { P90: 93, P95: 181, P99: 489 },
+    'OTHER|MAPBOX': { P90: 198, P95: 314, P99: 831 },
+    'OTHER|OTHER': { P90: 280, P95: 483, P99: 3161 },
+    
+    // UNIVERSITY
+    'UNIVERSITY|AMS': { P90: 66, P95: 141, P99: 359 },
+    'UNIVERSITY|GOOGLE': { P90: 322, P95: 424, P99: 705 },
+    
+    // UNKNOWN
+    'UNKNOWN|AMS': { P90: 22, P95: 30, P99: 94 },
+    'UNKNOWN|CUSTOMER_PIN': { P90: 289, P95: 1246, P99: 5914 },
+    'UNKNOWN|DEFAULT': { P90: 3623, P95: 5843, P99: 8739 },
+    'UNKNOWN|MAPBOX': { P90: 87, P95: 143, P99: 416 },
+    'UNKNOWN|OTHER': { P90: 41, P95: 83, P99: 980 },
+};
+
+// Default fallback radii by property type (P95)
+const DEFAULT_ARRIVAL = {
+    'HOUSE': 79,
     'APARTMENT': 147,
-    'BUSINESS': 195,
-    'OTHER': 253,
-    'UNIVERSITY': 409,
-    'UNKNOWN': 162,
+    'BUSINESS': 155,
+    'OTHER': 240,
+    'UNIVERSITY': 402,
+    'UNKNOWN': 144,
+};
+
+const DEFAULT_DELIVERY = {
+    'HOUSE': 70,
+    'APARTMENT': 154,
+    'BUSINESS': 159,
+    'OTHER': 274,
+    'UNIVERSITY': 424,
+    'UNKNOWN': 143,
+};
+
+// Density multipliers
+const DENSITY_MULTIPLIERS = {
+    'URBAN_HIGH': 0.85,
+    'URBAN_MEDIUM': 0.92,
+    'SUBURBAN': 1.0,
+    'RURAL': 1.15,
 };
 
 // Access code multipliers by property type
@@ -211,46 +158,77 @@ const ACCESS_MULTIPLIERS = {
 // =============================================================================
 
 /**
- * Get the recommended delivery geofence radius in meters.
+ * Get the recommended ARRIVAL radius in meters (where driver parks).
  */
-function getGeofenceRadius(propertyType, addressSource, densityCategory, percentile = 'P95', accessRequired = false) {
-    const key = `${densityCategory}|${propertyType}|${addressSource}`;
-    let baseRadius = GEOFENCE_LOOKUP[key];
+function getArrivalRadius(propertyType, addressSource, densityCategory, percentile = 'P95', accessRequired = false) {
+    const key = `${propertyType}|${addressSource}`;
+    const lookup = ARRIVAL_LOOKUP[key];
     
-    // Fallback
-    if (baseRadius === undefined) {
-        baseRadius = DEFAULT_BY_PROPERTY[propertyType] || 89;
+    let baseRadius;
+    if (lookup && lookup[percentile] !== undefined) {
+        baseRadius = lookup[percentile];
+    } else {
+        // Fallback to default
+        baseRadius = DEFAULT_ARRIVAL[propertyType] || 100;
     }
+    
+    // Apply density multiplier
+    const densityMult = DENSITY_MULTIPLIERS[densityCategory] || 1.0;
+    baseRadius = baseRadius * densityMult;
     
     // Apply access multiplier
     if (accessRequired) {
-        const multiplier = ACCESS_MULTIPLIERS[propertyType] || 1.0;
-        baseRadius = baseRadius * multiplier;
+        const accessMult = ACCESS_MULTIPLIERS[propertyType] || 1.0;
+        baseRadius = baseRadius * accessMult;
     }
     
-    // Adjust for percentile
-    if (percentile === 'P90') {
-        return Math.round(baseRadius * 0.85);
-    } else if (percentile === 'P99') {
-        return Math.round(baseRadius * 1.8);
+    // Get delivery radius to ensure arrival >= delivery
+    const deliveryRadius = getDeliveryRadiusRaw(propertyType, addressSource, densityCategory, percentile, accessRequired);
+    
+    return Math.round(Math.max(baseRadius, deliveryRadius));
+}
+
+/**
+ * Internal: Get delivery radius without the max check (to avoid recursion).
+ */
+function getDeliveryRadiusRaw(propertyType, addressSource, densityCategory, percentile = 'P95', accessRequired = false) {
+    const key = `${propertyType}|${addressSource}`;
+    const lookup = DELIVERY_LOOKUP[key];
+    
+    let baseRadius;
+    if (lookup && lookup[percentile] !== undefined) {
+        baseRadius = lookup[percentile];
+    } else {
+        // Fallback to default
+        baseRadius = DEFAULT_DELIVERY[propertyType] || 100;
     }
+    
+    // Apply density multiplier
+    const densityMult = DENSITY_MULTIPLIERS[densityCategory] || 1.0;
+    baseRadius = baseRadius * densityMult;
+    
+    // Apply access multiplier
+    if (accessRequired) {
+        const accessMult = ACCESS_MULTIPLIERS[propertyType] || 1.0;
+        baseRadius = baseRadius * accessMult;
+    }
+    
     return Math.round(baseRadius);
 }
 
 /**
- * Get the recommended arrival radius in meters (where driver parks).
- * For simplicity, we use the same lookup as delivery radius.
+ * Get the recommended DELIVERY radius in meters (where driver delivers/takes photo).
  */
-function getArrivalRadius(propertyType, addressSource, densityCategory, percentile = 'P95', accessRequired = false) {
-    // Arrival radius is typically same or slightly larger than delivery radius
-    const deliveryRadius = getGeofenceRadius(propertyType, addressSource, densityCategory, percentile, accessRequired);
-    return deliveryRadius;
+function getGeofenceRadius(propertyType, addressSource, densityCategory, percentile = 'P95', accessRequired = false) {
+    return getDeliveryRadiusRaw(propertyType, addressSource, densityCategory, percentile, accessRequired);
 }
 
 // Export for use in browser
 if (typeof window !== 'undefined') {
     window.getGeofenceRadius = getGeofenceRadius;
     window.getArrivalRadius = getArrivalRadius;
-    window.GEOFENCE_LOOKUP = GEOFENCE_LOOKUP;
-    window.DEFAULT_BY_PROPERTY = DEFAULT_BY_PROPERTY;
+    window.ARRIVAL_LOOKUP = ARRIVAL_LOOKUP;
+    window.DELIVERY_LOOKUP = DELIVERY_LOOKUP;
+    window.DEFAULT_ARRIVAL = DEFAULT_ARRIVAL;
+    window.DEFAULT_DELIVERY = DEFAULT_DELIVERY;
 }
