@@ -1,66 +1,104 @@
 {
   "metadata": {
     "name": "Geofence Radius Configuration",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "Optimal geofence radii based on property type, address source, and population density",
     "data_source": "wmt-driver-insights.Chirag_dx.geofence_delivered_distance_1yr",
     "records_analyzed": 604483892,
     "percentile": "P95",
-    "generated_date": "2026-02-10",
-    "author": "Code Puppy"
+    "generated_date": "2026-02-17",
+    "author": "Code Puppy",
+    "date_range": "2025-02-10 to 2026-02-09"
   },
   "density_thresholds": {
-    "URBAN_HIGH": { "min_density_per_km2": 4000, "description": "Dense urban cores" },
-    "URBAN_MEDIUM": { "min_density_per_km2": 1000, "description": "Urban areas" },
-    "SUBURBAN": { "min_density_per_km2": 200, "description": "Suburban neighborhoods" },
-    "RURAL": { "min_density_per_km2": 0, "description": "Rural areas" }
+    "URBAN_HIGH": { "min_density_per_km2": 4000, "description": "Dense urban cores", "multiplier": 0.85 },
+    "URBAN_MEDIUM": { "min_density_per_km2": 1000, "description": "Urban areas", "multiplier": 0.92 },
+    "SUBURBAN": { "min_density_per_km2": 200, "description": "Suburban neighborhoods", "multiplier": 1.0 },
+    "RURAL": { "min_density_per_km2": 0, "description": "Rural areas", "multiplier": 1.15 }
   },
   "geofence_radii_meters": {
     "URBAN_HIGH": {
-      "HOUSE": { "AMS": 28, "GOOGLE": 70, "MAPBOX": 85, "MELISSA": 75, "CUSTOMER_PIN": 400, "DEFAULT": 35 },
-      "APARTMENT": { "AMS": 45, "GOOGLE": 140, "MAPBOX": 150, "MELISSA": 120, "CUSTOMER_PIN": 450, "DEFAULT": 70 },
-      "BUSINESS": { "AMS": 48, "GOOGLE": 100, "MAPBOX": 120, "MELISSA": 90, "CUSTOMER_PIN": 400, "DEFAULT": 75 },
-      "MOBILE_HOME": { "AMS": 25, "GOOGLE": 70, "MAPBOX": 80, "MELISSA": 70, "CUSTOMER_PIN": 400, "DEFAULT": 35 },
-      "DORM": { "AMS": 200, "GOOGLE": 220, "MAPBOX": 230, "MELISSA": 210, "CUSTOMER_PIN": 500, "DEFAULT": 220 },
-      "OTHER": { "AMS": 70, "GOOGLE": 120, "MAPBOX": 130, "MELISSA": 100, "CUSTOMER_PIN": 450, "DEFAULT": 100 }
+      "HOUSE": { "AMS": 33, "GOOGLE": 69, "MAPBOX": 76, "MANUAL_ADJ": 49, "CUSTOMER_PIN": 232, "OTHER": 377, "DEFAULT": 893 },
+      "APARTMENT": { "AMS": 52, "GOOGLE": 125, "MAPBOX": 120, "MANUAL_ADJ": 76, "CUSTOMER_PIN": 149, "OTHER": 276, "DEFAULT": 912 },
+      "BUSINESS": { "AMS": 56, "GOOGLE": 137, "MAPBOX": 166, "MANUAL_ADJ": 152, "CUSTOMER_PIN": 175, "OTHER": 215, "DEFAULT": 2216 },
+      "OTHER": { "AMS": 55, "GOOGLE": 215, "MAPBOX": 213, "MANUAL_ADJ": 143, "CUSTOMER_PIN": 260, "OTHER": 362, "DEFAULT": 3329 },
+      "UNIVERSITY": { "AMS": 129, "GOOGLE": 348, "MAPBOX": 200, "MANUAL_ADJ": 410, "CUSTOMER_PIN": 300, "OTHER": 300, "DEFAULT": 400 },
+      "UNKNOWN": { "AMS": 50, "GOOGLE": 100, "MAPBOX": 138, "MANUAL_ADJ": 68, "CUSTOMER_PIN": 930, "OTHER": 87, "DEFAULT": 5019 }
     },
     "URBAN_MEDIUM": {
-      "HOUSE": { "AMS": 29, "GOOGLE": 72, "MAPBOX": 88, "MELISSA": 78, "CUSTOMER_PIN": 420, "DEFAULT": 38 },
-      "APARTMENT": { "AMS": 45, "GOOGLE": 145, "MAPBOX": 155, "MELISSA": 125, "CUSTOMER_PIN": 480, "DEFAULT": 75 },
-      "BUSINESS": { "AMS": 50, "GOOGLE": 100, "MAPBOX": 120, "MELISSA": 95, "CUSTOMER_PIN": 420, "DEFAULT": 75 },
-      "MOBILE_HOME": { "AMS": 26, "GOOGLE": 72, "MAPBOX": 82, "MELISSA": 72, "CUSTOMER_PIN": 420, "DEFAULT": 38 },
-      "DORM": { "AMS": 210, "GOOGLE": 225, "MAPBOX": 235, "MELISSA": 215, "CUSTOMER_PIN": 520, "DEFAULT": 225 },
-      "OTHER": { "AMS": 72, "GOOGLE": 125, "MAPBOX": 135, "MELISSA": 105, "CUSTOMER_PIN": 470, "DEFAULT": 105 }
+      "HOUSE": { "AMS": 36, "GOOGLE": 75, "MAPBOX": 82, "MANUAL_ADJ": 53, "CUSTOMER_PIN": 251, "OTHER": 408, "DEFAULT": 967 },
+      "APARTMENT": { "AMS": 57, "GOOGLE": 135, "MAPBOX": 129, "MANUAL_ADJ": 82, "CUSTOMER_PIN": 162, "OTHER": 299, "DEFAULT": 987 },
+      "BUSINESS": { "AMS": 61, "GOOGLE": 149, "MAPBOX": 179, "MANUAL_ADJ": 164, "CUSTOMER_PIN": 190, "OTHER": 233, "DEFAULT": 2398 },
+      "OTHER": { "AMS": 60, "GOOGLE": 232, "MAPBOX": 230, "MANUAL_ADJ": 155, "CUSTOMER_PIN": 282, "OTHER": 392, "DEFAULT": 3603 },
+      "UNIVERSITY": { "AMS": 140, "GOOGLE": 377, "MAPBOX": 217, "MANUAL_ADJ": 444, "CUSTOMER_PIN": 325, "OTHER": 325, "DEFAULT": 433 },
+      "UNKNOWN": { "AMS": 54, "GOOGLE": 108, "MAPBOX": 149, "MANUAL_ADJ": 73, "CUSTOMER_PIN": 1006, "OTHER": 94, "DEFAULT": 5433 }
     },
     "SUBURBAN": {
-      "HOUSE": { "AMS": 30, "GOOGLE": 75, "MAPBOX": 90, "MELISSA": 80, "CUSTOMER_PIN": 450, "DEFAULT": 40 },
-      "APARTMENT": { "AMS": 40, "GOOGLE": 130, "MAPBOX": 140, "MELISSA": 110, "CUSTOMER_PIN": 500, "DEFAULT": 65 },
-      "BUSINESS": { "AMS": 50, "GOOGLE": 100, "MAPBOX": 120, "MELISSA": 95, "CUSTOMER_PIN": 450, "DEFAULT": 75 },
-      "MOBILE_HOME": { "AMS": 28, "GOOGLE": 75, "MAPBOX": 85, "MELISSA": 75, "CUSTOMER_PIN": 450, "DEFAULT": 40 },
-      "DORM": { "AMS": 216, "GOOGLE": 230, "MAPBOX": 240, "MELISSA": 220, "CUSTOMER_PIN": 550, "DEFAULT": 230 },
-      "OTHER": { "AMS": 75, "GOOGLE": 130, "MAPBOX": 140, "MELISSA": 110, "CUSTOMER_PIN": 500, "DEFAULT": 110 }
+      "HOUSE": { "AMS": 39, "GOOGLE": 81, "MAPBOX": 89, "MANUAL_ADJ": 58, "CUSTOMER_PIN": 273, "OTHER": 443, "DEFAULT": 1051 },
+      "APARTMENT": { "AMS": 62, "GOOGLE": 147, "MAPBOX": 141, "MANUAL_ADJ": 89, "CUSTOMER_PIN": 176, "OTHER": 325, "DEFAULT": 1073 },
+      "BUSINESS": { "AMS": 66, "GOOGLE": 161, "MAPBOX": 195, "MANUAL_ADJ": 179, "CUSTOMER_PIN": 206, "OTHER": 254, "DEFAULT": 2607 },
+      "OTHER": { "AMS": 65, "GOOGLE": 253, "MAPBOX": 251, "MANUAL_ADJ": 168, "CUSTOMER_PIN": 307, "OTHER": 426, "DEFAULT": 3917 },
+      "UNIVERSITY": { "AMS": 152, "GOOGLE": 409, "MAPBOX": 236, "MANUAL_ADJ": 482, "CUSTOMER_PIN": 350, "OTHER": 350, "DEFAULT": 470 },
+      "UNKNOWN": { "AMS": 58, "GOOGLE": 117, "MAPBOX": 162, "MANUAL_ADJ": 80, "CUSTOMER_PIN": 1094, "OTHER": 103, "DEFAULT": 5905 }
     },
     "RURAL": {
-      "HOUSE": { "AMS": 34, "GOOGLE": 80, "MAPBOX": 95, "MELISSA": 85, "CUSTOMER_PIN": 500, "DEFAULT": 50 },
-      "APARTMENT": { "AMS": 50, "GOOGLE": 160, "MAPBOX": 170, "MELISSA": 140, "CUSTOMER_PIN": 550, "DEFAULT": 85 },
-      "BUSINESS": { "AMS": 55, "GOOGLE": 110, "MAPBOX": 130, "MELISSA": 100, "CUSTOMER_PIN": 500, "DEFAULT": 80 },
-      "MOBILE_HOME": { "AMS": 30, "GOOGLE": 80, "MAPBOX": 90, "MELISSA": 80, "CUSTOMER_PIN": 500, "DEFAULT": 45 },
-      "DORM": { "AMS": 220, "GOOGLE": 240, "MAPBOX": 250, "MELISSA": 230, "CUSTOMER_PIN": 600, "DEFAULT": 240 },
-      "OTHER": { "AMS": 80, "GOOGLE": 140, "MAPBOX": 150, "MELISSA": 120, "CUSTOMER_PIN": 550, "DEFAULT": 120 }
+      "HOUSE": { "AMS": 45, "GOOGLE": 93, "MAPBOX": 102, "MANUAL_ADJ": 66, "CUSTOMER_PIN": 314, "OTHER": 510, "DEFAULT": 1208 },
+      "APARTMENT": { "AMS": 71, "GOOGLE": 169, "MAPBOX": 162, "MANUAL_ADJ": 102, "CUSTOMER_PIN": 202, "OTHER": 374, "DEFAULT": 1234 },
+      "BUSINESS": { "AMS": 76, "GOOGLE": 186, "MAPBOX": 224, "MANUAL_ADJ": 205, "CUSTOMER_PIN": 237, "OTHER": 292, "DEFAULT": 2998 },
+      "OTHER": { "AMS": 75, "GOOGLE": 291, "MAPBOX": 288, "MANUAL_ADJ": 193, "CUSTOMER_PIN": 352, "OTHER": 490, "DEFAULT": 4504 },
+      "UNIVERSITY": { "AMS": 175, "GOOGLE": 471, "MAPBOX": 271, "MANUAL_ADJ": 555, "CUSTOMER_PIN": 403, "OTHER": 403, "DEFAULT": 541 },
+      "UNKNOWN": { "AMS": 67, "GOOGLE": 135, "MAPBOX": 187, "MANUAL_ADJ": 92, "CUSTOMER_PIN": 1258, "OTHER": 118, "DEFAULT": 6791 }
     }
   },
   "fallback_defaults": {
-    "HOUSE": 50,
-    "APARTMENT": 85,
-    "BUSINESS": 75,
-    "MOBILE_HOME": 45,
-    "DORM": 220,
-    "OTHER": 100,
-    "UNKNOWN": 50
+    "HOUSE": 89,
+    "APARTMENT": 147,
+    "BUSINESS": 195,
+    "OTHER": 253,
+    "UNIVERSITY": 409,
+    "UNKNOWN": 162
   },
   "percentile_multipliers": {
     "P90": 0.85,
     "P95": 1.0,
     "P99": 1.8
+  },
+  "record_counts": {
+    "HOUSE": {
+      "AMS": 400753958,
+      "GOOGLE": 39356311,
+      "CUSTOMER_PIN": 3526849,
+      "MAPBOX": 1020105,
+      "OTHER": 642167,
+      "MANUAL_ADJ": 633154,
+      "DEFAULT": 631925
+    },
+    "APARTMENT": {
+      "AMS": 93891160,
+      "GOOGLE": 16785687,
+      "CUSTOMER_PIN": 1774302,
+      "MAPBOX": 347791,
+      "DEFAULT": 254457,
+      "OTHER": 216403,
+      "MANUAL_ADJ": 54457
+    },
+    "BUSINESS": {
+      "AMS": 8598474,
+      "GOOGLE": 755720,
+      "CUSTOMER_PIN": 195440,
+      "OTHER": 37993,
+      "MAPBOX": 17722,
+      "DEFAULT": 17477,
+      "MANUAL_ADJ": 4537
+    },
+    "OTHER": {
+      "AMS": 5713934,
+      "GOOGLE": 761502,
+      "CUSTOMER_PIN": 215847,
+      "OTHER": 30233,
+      "DEFAULT": 24989,
+      "MANUAL_ADJ": 18387,
+      "MAPBOX": 17521
+    }
   }
 }
