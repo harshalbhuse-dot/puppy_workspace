@@ -64,7 +64,7 @@ const GEOFENCE_LOOKUP = {
     'URBAN_MEDIUM|HOUSE|GOOGLE': 75,
     'URBAN_MEDIUM|HOUSE|MAPBOX': 82,
     'URBAN_MEDIUM|HOUSE|MANUAL_ADJ': 53,
-    'URBAN_MEDIU|CUSTOMER_PIN': 251,
+    'URBAN_MEDIUM|HOUSE|CUSTOMER_PIN': 251,
     'URBAN_MEDIUM|HOUSE|OTHER': 408,
     'URBAN_MEDIUM|HOUSE|DEFAULT': 967,
     'URBAN_MEDIUM|APARTMENT|AMS': 57,
@@ -237,9 +237,20 @@ function getGeofenceRadius(propertyType, addressSource, densityCategory, percent
     return Math.round(baseRadius);
 }
 
+/**
+ * Get the recommended arrival radius in meters (where driver parks).
+ * For simplicity, we use the same lookup as delivery radius.
+ */
+function getArrivalRadius(propertyType, addressSource, densityCategory, percentile = 'P95', accessRequired = false) {
+    // Arrival radius is typically same or slightly larger than delivery radius
+    const deliveryRadius = getGeofenceRadius(propertyType, addressSource, densityCategory, percentile, accessRequired);
+    return deliveryRadius;
+}
+
 // Export for use in browser
 if (typeof window !== 'undefined') {
     window.getGeofenceRadius = getGeofenceRadius;
+    window.getArrivalRadius = getArrivalRadius;
     window.GEOFENCE_LOOKUP = GEOFENCE_LOOKUP;
     window.DEFAULT_BY_PROPERTY = DEFAULT_BY_PROPERTY;
 }
